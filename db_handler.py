@@ -42,16 +42,19 @@ class DBHandler:
             server = self.servers_c.execute("SELECT * FROM servers WHERE ip = ?", [server_ip]).fetchone()
             priv, permanent = bool(server[2]), bool(server[3]) # Better readability
             return [priv, permanent]
+        return None
 
-    def server_exists(self, server_ip):
+    def get_server_status(self, server_ip):
         if self.server_exists(server_ip):
             server = self.servers_c.execute("SELECT * FROM servers WHERE ip = ?", [server_ip]).fetchone()
             last_update, last_access = server[4], server[5]
             return [last_update, last_access]
+        return None
 
-    def server_exists(self, server_ip):
+    def get_server_access_count(self, server_ip):
         if self.server_exists(server_ip):
             server = self.servers_c.execute("SELECT * FROM servers WHERE ip = ?", [server_ip]).fetchone()
             access_count = server[6]
             return access_count # No list just a var
+        return None
 
