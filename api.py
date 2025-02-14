@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from scalar_fastapi import get_scalar_api_reference
 
-from mcstatus_handler import server as mcs
+from mcstatus_handler import Server as mcs
 
 app = FastAPI()
 
