@@ -1,11 +1,11 @@
 import sqlite3
 from time import time
 
-class DBHandler:
+class DBConnection:
     def __init__(self, servers_db_path):
-        self.servers = sqlite3.connect(servers_db_path)
-        self.servers_c = self.servers.cursor()
-        self.servers.execute("""
+        self.connection = sqlite3.connect(servers_db_path)
+        self.cursor = self.connection.cursor()
+        self.connection.execute("""
             CREATE TABLE IF NOT EXISTS servers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 server_ip TEXT NOT NULL,
@@ -16,7 +16,7 @@ class DBHandler:
                 access_count INTEGER
             );
         """)
-        self.servers.execute("""
+        self.connection.execute("""
             CREATE TABLE IF NOT EXISTS tracking_points (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 server_id INTEGER NOT NULL,
@@ -26,7 +26,12 @@ class DBHandler:
                 FOREIGN KEY (server_id) REFERENCES servers(id)  -- Foreign key(server_id) linking to id of servers table
             );
         """)
-        self.servers.commit()
+        self.connection.commit()
+
+class DBHandler:
+    def __init__(self, connection):
+        self.servers = connection
+        self.servers_c = self.servers.cursor()
 
     def exists_server_ip(self, server_ip):
         return bool(self.servers_c.execute("SELECT * FROM servers WHERE server_ip = ?", [server_ip]).fetchall()) # If list is empty bool() returns False
