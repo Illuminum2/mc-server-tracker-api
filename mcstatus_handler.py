@@ -5,8 +5,8 @@ from mcstatus import JavaServer
 
 class Server:
     def __init__(self, server_ip):
-        self.server_ip = server_ip
-        self.server = JavaServer.lookup(self.server_ip)
+        self.ip = server_ip
+        self.server = JavaServer.lookup(self.ip)
         self.timestamp = int(time())
         self.status = self.server.status()
 
@@ -22,12 +22,12 @@ class Server:
     def modt(self):
         return (self.status.motd.parsed)
 
-    @property
     def tracking_point(self):
-        return self.server_ip, self.timestamp, self.status.latency, self.status.players.online
+        self.update()
+        return self.ip, self.timestamp, self.status.latency, self.status.players.online
 
     def update(self):
-        self.server = JavaServer.lookup(self.server_ip)
+        self.server = JavaServer.lookup(self.ip)
         self.status = self.server.status()
         self.timestamp = int(time())
 

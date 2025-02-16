@@ -63,6 +63,13 @@ class DBServers:
             return server
         return None
 
+    @property
+    def count(self): # Returns amount of servers
+        return self.cursor.execute("SELECT count(id) FROM servers").fetchone()[0] # Indexing id would improve speed
+
+    def ids(self):
+        return [int(tuple_id[0]) for tuple_id in self.cursor.execute("SELECT id FROM servers").fetchall()]
+
     def get_settings(self, server_ip):
         if self.exists_ip(server_ip):
             server = self.get(server_ip)
@@ -111,6 +118,16 @@ class DBTrackingPoints:
                 tracking_point = tracking_points.fetchone()
             return results
         return None
+
+    def clean(self, retention_time):
+        self.cursor.execute("DELETE FROM tracking_points WHERE timestamp < ?", [int(time()) - retention_time])
+        self.conn.commit()
+
+    def delete_oldest(self, server_ip):
+        if self.servers.exists_ip(server_ip):
+            self.cursor.execute("DELETE FROM tracking_points WHERE id ="
+                                "(SELECT id FROM tracking_points WHERE server_id = ? ORDER BY timestamp LIMIT 1)", [self.servers.get_id(server_ip)])
+            self.conn.commit()
 
 class DBHandler:
     def __init__(self, servers_db_path):
