@@ -113,10 +113,17 @@ class DBTrackingPoints:
             tracking_points = self.cursor.execute("SELECT server_id, timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id])
             tracking_point = tracking_points.fetchone()
             results = []
-            while tracking_point:
+            while tracking_point: # repeats until tracking_point is empty
                 results.append(tracking_point)
                 tracking_point = tracking_points.fetchone()
             return results
+        return None
+
+    def count(self, server_ip):
+        if self.servers.exists_ip(server_ip):
+            server_id = self.servers.get_id(server_ip)
+            tracking_point_count = self.cursor.execute("SELECT count(server_id) FROM tracking_points WHERE server_id = ?", [server_id]).fetchone()[0]
+            return tracking_point_count
         return None
 
     def clean(self, retention_time):
@@ -126,7 +133,7 @@ class DBTrackingPoints:
     def delete_oldest(self, server_ip):
         if self.servers.exists_ip(server_ip):
             self.cursor.execute("DELETE FROM tracking_points WHERE id ="
-                                "(SELECT id FROM tracking_points WHERE server_id = ? ORDER BY timestamp LIMIT 1)", [self.servers.get_id(server_ip)])
+                                "(SELECT id FROM tracking_points WHERE server_id = ? ORDER BY timestamp LIMIT 1)", [self.servers.get_id(server_ip)]) # Using a subquery
             self.conn.commit()
 
 class DBHandler:
