@@ -43,8 +43,10 @@ class TrackingPointUpdater():
     def update(self, server_list):
         for server in server_list:
             self.db.tracking_points.add(server[0].tracking_point())
-            if server[1] >= int(self.retention_time / self.update_frequency):
+            server[1] += 1
+            if server[1] > int(self.retention_time / self.update_frequency):
                 self.db.tracking_points.delete_oldest(server[0].ip)
+                server[1] -= 1
                 #print(server.tracking_point()) # Debug
 
     def stop(self):

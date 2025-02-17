@@ -124,7 +124,7 @@ class DBTrackingPoints:
             server_id = self.servers.get_id(server_ip)
             tracking_point_count = self.cursor.execute("SELECT count(server_id) FROM tracking_points WHERE server_id = ?", [server_id]).fetchone()[0]
             return tracking_point_count
-        return None
+        return 0
 
     def clean(self, retention_time):
         self.cursor.execute("DELETE FROM tracking_points WHERE timestamp < ?", [int(time()) - retention_time])
