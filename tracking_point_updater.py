@@ -8,6 +8,7 @@ class TrackingPointUpdater():
         self.update_frequency = update_frequency
         self.servers = []
         self.initializeList()
+        self._stop = False # _ indicates variable is private
 
     def initializeList(self):
         db_index = 0
@@ -26,7 +27,7 @@ class TrackingPointUpdater():
                 db_index += 1
 
     def start(self):
-        while True:
+        while True and self.stop is False:
             round_start_time = time()
             for i in range(self.update_frequency): # Loops and increments i as long as i < self.update_frequency
                 self.update(self.servers[i])
@@ -38,3 +39,6 @@ class TrackingPointUpdater():
             self.db.tracking_points.add(server.tracking_point())
             self.db.tracking_points.delete_oldest(server.ip)
             #print(server.tracking_point()) # Debug
+
+    def stop(self):
+        self._stop = True
