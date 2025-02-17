@@ -8,7 +8,6 @@ class TrackingPointUpdater():
         self.update_frequency = update_frequency
         self.retention_time = retention_time
         self.servers = []
-        self.initializeList()
         self._stop = False # _ indicates variable is only to be used inside this class
 
     def initializeList(self):
@@ -22,7 +21,7 @@ class TrackingPointUpdater():
         while db_index < db_len:
             i = 0
             while i < self.update_frequency and db_index < db_len:
-                print("Server IP: " + self.db.servers.get_ip(db_indices[db_index]))
+                #print("Server IP: " + self.db.servers.get_ip(db_indices[db_index])) # Debug
                 server = Server(self.db.servers.get_ip(db_indices[db_index]))
                 tracking_point_count = self.db.tracking_points.count(server.ip)
                 self.servers[i].append([server, tracking_point_count])
@@ -31,9 +30,9 @@ class TrackingPointUpdater():
 
     def start(self):
         self.db.tracking_points.clean(self.retention_time)
+        self.initializeList() # Must be called after cleaning as tracking_point_count can change
 
         while not self._stop:
-            print("New round")
             round_start_time = time()
             for i in range(self.update_frequency): # Loops and increments i as long as i < self.update_frequency
                 self.update(self.servers[i])
@@ -44,10 +43,10 @@ class TrackingPointUpdater():
         for server in server_list:
             self.db.tracking_points.add(server[0].tracking_point())
             server[1] += 1
+
             if server[1] > int(self.retention_time / self.update_frequency):
                 self.db.tracking_points.delete_oldest(server[0].ip)
                 server[1] -= 1
-                #print(server.tracking_point()) # Debug
 
     def stop(self):
         self._stop = True
