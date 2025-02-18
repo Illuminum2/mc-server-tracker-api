@@ -8,7 +8,7 @@ app = FastAPI()
 
 @app.get("/", include_in_schema=False)
 def read_root():
-    return RedirectResponse(url="/docs")
+    return RedirectResponse(url="/scalar")
 
 @app.get("/scalar", include_in_schema=False)
 async def scalar_html():

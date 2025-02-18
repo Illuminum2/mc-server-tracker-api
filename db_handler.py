@@ -137,8 +137,8 @@ class DBTrackingPoints:
             self.conn.commit()
 
 class DBHandler:
-    def __init__(self, servers_db_path):
-        self.conn = DBConnection(servers_db_path).connection
+    def __init__(self, db_path):
+        self.conn = DBConnection(db_path).connection
         self.cursor = self.conn.cursor()
         self.servers = DBServers(self.conn, self.cursor, None)
         self.tracking_points = DBTrackingPoints(self.conn, self.cursor, self.servers)
