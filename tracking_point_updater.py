@@ -1,14 +1,18 @@
 from db_handler import DBHandler
 from mcstatus_handler import Server
 from time import time, sleep
+from constants import LOG_FOLDER
+import log
 
 class TrackingPointUpdater():
     def __init__(self, db_path, update_frequency, retention_time):
         self.db = DBHandler(db_path)
+
         self.update_frequency = update_frequency
         self.retention_time = retention_time
+        self._stop = False  # _ indicates variable is only to be used inside this class
+
         self.servers = []
-        self._stop = False # _ indicates variable is only to be used inside this class
 
     def initializeList(self):
         db_index = 0
@@ -28,11 +32,17 @@ class TrackingPointUpdater():
                 i += 1
                 db_index += 1
 
+        log.info("TrackingPointsUpdater - initializeList() - List initialized")
+
     def start(self):
+        self._stop = False
+
         self.db.tracking_points.clean(self.retention_time)
         self.initializeList() # Must be called after cleaning as tracking_point_count can change
 
         while not self._stop:
+            log.info("TrackingPointsUpdater - start() - New round started")
+
             round_start_time = time()
             for i in range(self.update_frequency): # Loops and increments i as long as i < self.update_frequency
                 self.update(self.servers[i])
@@ -41,8 +51,10 @@ class TrackingPointUpdater():
 
     def update(self, server_list):
         for server in server_list:
-            self.db.tracking_points.add(server[0].tracking_point())
-            server[1] += 1
+            tracking_point = server[0].tracking_point()
+            if tracking_point:
+                self.db.tracking_points.add(tracking_point)
+                server[1] += 1
 
             if server[1] > int(self.retention_time / self.update_frequency):
                 self.db.tracking_points.delete_oldest(server[0].ip)
@@ -50,3 +62,4 @@ class TrackingPointUpdater():
 
     def stop(self):
         self._stop = True
+        log.info("TrackingPointsUpdater - stop() - TrackingPointUpdater() stop initiated")
