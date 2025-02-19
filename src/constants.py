@@ -4,8 +4,8 @@
 UPDATE_FREQUENCY = 20
 RETENTION_TIME = 60
 
-DB_PATH = "./db/servers.db"
-LOG_FOLDER = "./logs/"
+DB_PATH = "../db/servers.db"
+LOG_FOLDER = "../logs/"
 LOG_FILE_EXTENSION = ".log"
 
 RETRY_COUNT = 3

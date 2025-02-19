@@ -1,7 +1,6 @@
 from db_handler import DBHandler
 from mcstatus_handler import Server
 from time import time, sleep
-from constants import LOG_FOLDER
 import log
 
 class TrackingPointUpdater():

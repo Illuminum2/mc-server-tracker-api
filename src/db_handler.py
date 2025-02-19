@@ -1,6 +1,5 @@
 import sqlite3
 from time import time
-from constants import LOG_FOLDER
 import log
 
 class DBConnection:

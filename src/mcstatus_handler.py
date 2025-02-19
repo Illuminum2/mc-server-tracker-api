@@ -1,6 +1,6 @@
 from time import time, sleep
 from mcstatus import JavaServer
-from constants import RETRY_COUNT, RETRY_DELAY, LOG_FOLDER
+from constants import RETRY_COUNT, RETRY_DELAY
 import log
 
 class Server:
