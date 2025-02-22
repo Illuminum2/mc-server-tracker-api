@@ -2,6 +2,7 @@ from db_handler import DBHandler
 from mcstatus_handler import Server
 from time import time, sleep
 import log
+import asyncio
 
 class TrackingPointUpdater():
     def __init__(self, db_path, update_frequency, retention_time):
@@ -33,7 +34,7 @@ class TrackingPointUpdater():
 
         log.info("TrackingPointsUpdater - initializeList() - List initialized")
 
-    def start(self):
+    async def start(self):
         self._stop = False
 
         self.db.tracking_points.clean(self.retention_time)
@@ -43,12 +44,15 @@ class TrackingPointUpdater():
             log.info("TrackingPointsUpdater - start() - New round started")
 
             round_start_time = time()
+
+            updates = []
             for i in range(self.update_frequency): # Loops and increments i as long as i < self.update_frequency
-                self.update(self.servers[i])
+                updates.append(asyncio.create_task(self.update(self.servers[i])))
                 sleep_time = (round_start_time + i+1) - time() # Dynamic wait time
                 sleep(max(0, sleep_time))
+            await asyncio.gather(*updates) # * unrolls the list
 
-    def update(self, server_list):
+    async def update(self, server_list):
         for server in server_list:
             tracking_point = server[0].tracking_point()
             if tracking_point:
