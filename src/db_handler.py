@@ -69,11 +69,18 @@ class DBServers:
         return None
 
     @property
-    def count(self): # Returns amount of servers
+    def count_all(self): # Returns amount of servers
         return self.cursor.execute("SELECT count(id) FROM servers").fetchone()[0] # Indexing id would improve speed
 
-    def ids(self):
+    @property
+    def count_public(self):  # Returns amount of servers
+        return self.cursor.execute("SELECT count(id) FROM servers WHERE priv = 0").fetchone()[0]
+
+    def ids_all(self):
         return [int(tuple_id[0]) for tuple_id in self.cursor.execute("SELECT id FROM servers").fetchall()]
+
+    def ids_public(self):
+        return [int(tuple_id[0]) for tuple_id in self.cursor.execute("SELECT id FROM servers WHERE priv = 0").fetchall()]
 
     def get_settings(self, server_ip):
         if self.exists_ip(server_ip):
@@ -98,6 +105,25 @@ class DBServers:
             return access_count # No list just a var
         log.info("DBServers - get_access_count() - Server IP(" + str(server_ip) + ") does not exist")
         return None
+
+    def update_last_update(self, server_ip, timestamp):
+        if self.exists_ip(server_ip):
+            self.cursor.execute("UPDATE servers SET last_update = ? WHERE server_ip = ?", [timestamp, server_ip])
+            self.conn.commit()
+            return
+        log.info("DBServers - update_last_update() - Server IP(" + str(server_ip) + ") does not exist")
+
+    def update_access(self, server_ip, timestamp):
+        if self.exists_ip(server_ip):
+            self.cursor.execute("UPDATE servers SET access_count = access_count + 1 WHERE server_ip = ?", [server_ip])
+            self.cursor.execute("UPDATE servers SET last_access = ? WHERE server_ip = ?", [timestamp, server_ip])
+            self.conn.commit()
+            return
+        log.info("DBServers - update_access() - Server IP(" + str(server_ip) + ") does not exist")
+
+    def clean(self, retention_time):
+        self.cursor.execute("DELETE FROM servers WHERE last_access < ? AND permanent = 0", [int(time()) - retention_time])
+        self.conn.commit()
 
 class DBTrackingPoints:
     def __init__(self, connection, cursor, servers):

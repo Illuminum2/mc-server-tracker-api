@@ -5,18 +5,19 @@ import log
 import asyncio
 
 class TrackingPointUpdater():
-    def __init__(self, db_path, update_frequency, retention_time):
+    def __init__(self, db_path, update_frequency, tracking_retention_time, server_retention_time):
         self.db = DBHandler(db_path)
 
         self.update_frequency = update_frequency
-        self.retention_time = retention_time
+        self.tracking_retention_time = tracking_retention_time
+        self.server_retention_time = server_retention_time
         self._stop = False  # _ indicates variable is only to be used inside this class
 
         self.servers = []
 
     def initializeList(self):
         db_index = 0
-        db_indices = self.db.servers.ids()
+        db_indices = self.db.servers.ids_all()
         db_len = len(db_indices)
 
         for i in range(self.update_frequency):
@@ -37,7 +38,7 @@ class TrackingPointUpdater():
     async def start(self):
         self._stop = False
 
-        self.db.tracking_points.clean(self.retention_time)
+        self.db.tracking_points.clean(self.tracking_retention_time)
         self.initializeList() # Must be called after cleaning as tracking_point_count can change
 
         while not self._stop:
@@ -51,15 +52,17 @@ class TrackingPointUpdater():
                 sleep_time = (round_start_time + i+1) - time() # Dynamic wait time
                 sleep(max(0, sleep_time))
             await asyncio.gather(*updates) # * unrolls the list
+            self.db.servers.clean(self.server_retention_time)
 
     async def update(self, server_list):
         for server in server_list:
             tracking_point = server[0].tracking_point()
             if tracking_point:
                 self.db.tracking_points.add(tracking_point)
+                self.db.servers.update_last_update(tracking_point[0], tracking_point[1])
                 server[1] += 1
 
-            if server[1] > int(self.retention_time / self.update_frequency):
+            if server[1] > int(self.tracking_retention_time / self.update_frequency):
                 self.db.tracking_points.delete_oldest(server[0].ip)
                 server[1] -= 1
 
