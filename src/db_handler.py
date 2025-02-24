@@ -14,7 +14,8 @@ class DBConnection:
                 permanent INTEGER NOT NULL,
                 last_update INTEGER,
                 last_access INTEGER NOT NULL,
-                access_count INTEGER
+                access_count INTEGER,
+                UNIQUE(server_ip)
             );
         """)
         self.connection.execute("""
