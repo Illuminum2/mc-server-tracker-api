@@ -1,19 +1,31 @@
-from time import time
+import os
 import logging
+from time import time
 from constants import LOG_FOLDER, LOG_FILE_EXTENSION
 
-log_path = LOG_FOLDER + str(int(time())) + LOG_FILE_EXTENSION
-logging.basicConfig(filename=log_path, level=logging.INFO)
-log = logging.getLogger()
+class Singleton(type): # https://stackoverflow.com/questions/6760685/
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
-def info(message):
-    log.info(str(int(time())) + " - Info - " + message)
+class Logger(metaclass=Singleton):
+    def __init__(self):
+        if not os.path.exists(LOG_FOLDER):
+            os.makedirs(LOG_FOLDER)
+        self.log_path = LOG_FOLDER + str(int(time())) + LOG_FILE_EXTENSION
+        logging.basicConfig(filename=self.log_path, level=logging.INFO)
+        self.log = logging.getLogger()
 
-def warning(message):
-    log.warning(str(int(time())) + " - Warning - " + message)
+    def info(self, message):
+        self.log.info(str(int(time())) + " - Info - " + message)
 
-def error(message):
-    log.error(str(int(time())) + " - Error - " + message)
+    def warning(self, message):
+        self.log.warning(str(int(time())) + " - Warning - " + message)
 
-def clear():
-    open(log_path, 'w').close()
+    def error(self, message):
+        self.log.error(str(int(time())) + " - Error - " + message)
+
+    def clear(self):
+        open(self.log_path, 'w').close()

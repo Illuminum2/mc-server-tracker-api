@@ -1,12 +1,12 @@
 from db_handler import DBHandler
 from mcstatus_handler import Server
 from time import time, sleep
-import log
+from log import Logger as Log
 import asyncio
 
 class TrackingPointUpdater():
-    def __init__(self, db_path, update_frequency, tracking_retention_time, server_retention_time):
-        self.db = DBHandler(db_path)
+    def __init__(self, update_frequency, tracking_retention_time, server_retention_time):
+        self.db = DBHandler()
 
         self.update_frequency = update_frequency
         self.tracking_retention_time = tracking_retention_time
@@ -14,6 +14,8 @@ class TrackingPointUpdater():
         self._stop = False  # _ indicates variable is only to be used inside this class
 
         self.servers = []
+
+        self.log = Log()
 
     def initializeList(self):
         db_index = 0
@@ -33,7 +35,7 @@ class TrackingPointUpdater():
                 i += 1
                 db_index += 1
 
-        log.info("TrackingPointsUpdater - initializeList() - List initialized")
+        self.log.info("TrackingPointsUpdater - initializeList() - List initialized")
 
     async def start(self):
         self._stop = False
@@ -42,7 +44,7 @@ class TrackingPointUpdater():
         self.initializeList() # Must be called after cleaning as tracking_point_count can change
 
         while not self._stop:
-            log.info("TrackingPointsUpdater - start() - New round started")
+            self.log.info("TrackingPointsUpdater - start() - New round started")
 
             round_start_time = time()
 
@@ -68,4 +70,4 @@ class TrackingPointUpdater():
 
     def stop(self):
         self._stop = True
-        log.info("TrackingPointsUpdater - stop() - TrackingPointUpdater() stop initiated")
+        self.log.info("TrackingPointsUpdater - stop() - TrackingPointUpdater() stop initiated")

@@ -1,11 +1,14 @@
-#UPDATE_FREQUENCY = 60*2 # 5 minutes
-#RETENTION_TIME = 60*60*24 # 24h
+import os
+
 
 UPDATE_FREQUENCY = 60*5 # 5 min
 TRACKING_RETENTION_TIME = 60*60*24 # 24h
 SERVER_RETENTION_TIME = 60*60*24*10 # 10 days
 
-DB_PATH = "../db/servers.db"
+DB_FOLDER = "../db/"
+DB_FILE_NAME = "mc_tracker.db"
+DB_PATH = os.path.join(DB_FOLDER, DB_FILE_NAME) # Uses correct path separator
+
 LOG_FOLDER = "../logs/"
 LOG_FILE_EXTENSION = ".log"
 

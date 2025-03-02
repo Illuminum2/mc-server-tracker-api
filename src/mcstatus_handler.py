@@ -1,13 +1,15 @@
 from time import time, sleep
 from mcstatus import JavaServer
 from constants import RETRY_COUNT, RETRY_DELAY
-import log
+from log import Logger as Log
 
 class Server:
     def __init__(self, server_ip):
         self.ip = server_ip
         self.server, self.timestamp, self.status = None, None, None
         self.update()
+
+        self.log = Log()
 
     @property # can be accessed like an attribute
     def players(self):
@@ -35,11 +37,11 @@ class Server:
                 self.timestamp = int(time())
                 self.status = self.server.status()
             except:
-                log.warning("Server - update() - Server IP(" + str(self.ip) + ") update failed, retry " + str(tries) + " out of " + str(RETRY_COUNT))
+                self.log.warning("Server - update() - Server IP(" + str(self.ip) + ") update failed, retry " + str(tries) + " out of " + str(RETRY_COUNT))
             else:
                 return True
 
             sleep(RETRY_DELAY)
             tries += 1
-        log.error("Server - update() - Server IP(" + str(self.ip) + ") could not be updated")
+        self.log.error("Server - update() - Server IP(" + str(self.ip) + ") could not be updated")
         return False
