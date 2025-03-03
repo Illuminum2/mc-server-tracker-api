@@ -36,11 +36,11 @@ class DBConnection:
 
 class DBServers:
     def __init__(self, connection, cursor, tracking_points):
+        self.log = Log()
+
         self.conn = connection
         self.cursor = cursor
         self.tracking_points = tracking_points
-        
-        self.log = Log()
 
     def exists_ip(self, server_ip):
         return bool(self.cursor.execute("SELECT * FROM servers WHERE server_ip = ?", [server_ip]).fetchall()) # If list is empty bool() returns False
@@ -134,11 +134,11 @@ class DBServers:
 
 class DBTrackingPoints:
     def __init__(self, connection, cursor, servers):
+        self.log = Log()
+
         self.conn = connection
         self.cursor = cursor
         self.servers = servers
-        
-        self.log = Log()
 
     def add(self, tracking_point):
         server_ip = tracking_point[0]

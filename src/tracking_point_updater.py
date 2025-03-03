@@ -6,6 +6,8 @@ import asyncio
 
 class TrackingPointUpdater():
     def __init__(self, update_frequency, tracking_retention_time, server_retention_time):
+        self.log = Log()
+
         self.db = DBHandler()
 
         self.update_frequency = update_frequency
@@ -14,8 +16,6 @@ class TrackingPointUpdater():
         self._stop = False  # _ indicates variable is only to be used inside this class
 
         self.servers = []
-
-        self.log = Log()
 
     def initializeList(self):
         db_index = 0
