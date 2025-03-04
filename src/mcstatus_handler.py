@@ -132,15 +132,16 @@ class Server:
         if self.status is None:
             self.update()
 
-        try: # Fails on servers with query disabled
-            self.query = self.server.query()
-            # Query success is a bonus, not required
-        except TimeoutError:
-            self.log.info(f"Server - update() - Server IP({self.ip}) query timeout - query likely disabled")
-            self.query = None
-        except ConnectionRefusedError:
-            self.log.info(f"Server - update() - Server IP({self.ip}) query connection refused - query likely disabled")
-            self.query = None
-        except Exception as e:
-            self.log.info(f"Server - update() - Server IP({self.ip}) query failed: {str(e)}")
-            self.query = None
+        if self.query is None:
+            try: # Fails on servers with query disabled
+                self.query = self.server.query()
+                # Query success is a bonus, not required
+            except TimeoutError:
+                self.log.info(f"Server - update() - Server IP({self.ip}) query timeout - query likely disabled")
+                self.query = None
+            except ConnectionRefusedError:
+                self.log.info(f"Server - update() - Server IP({self.ip}) query connection refused - query likely disabled")
+                self.query = None
+            except Exception as e:
+                self.log.info(f"Server - update() - Server IP({self.ip}) query failed: {str(e)}")
+                self.query = None
