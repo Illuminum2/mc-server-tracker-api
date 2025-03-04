@@ -89,6 +89,9 @@ class DBServers:
     def ids_public(self):
         return [int(tuple_id[0]) for tuple_id in self.cursor.execute("SELECT id FROM servers WHERE priv = 0").fetchall()]
 
+    def ips_public(self):
+        return [int(tuple_ip[0]) for tuple_ip in self.cursor.execute("SELECT ip FROM servers WHERE priv = 0").fetchall()]
+
     def get_settings(self, server_ip):
         if self.exists_ip(server_ip):
             server = self.get(server_ip)

@@ -4,6 +4,7 @@ from scalar_fastapi import get_scalar_api_reference
 
 from db_handler import DBHandler
 from mcstatus_handler import Server as mcs
+import time
 
 app = FastAPI()
 db = DBHandler()
@@ -18,6 +19,16 @@ async def scalar_html():
         openapi_url=app.openapi_url,
         title=app.title,
     )
+
+@app.get("/server/list")
+def read_server_list():
+    servers = db.servers.ips_public()
+    return {"servers": servers if servers else None}
+
+@app.get("/server/count")
+def read_server_count():
+    count = db.servers.count_public
+    return {"servers": count if count else None}
 
 @app.get("/server/{server_ip}/players/online")
 def read_server_players_online(server_ip: str):
@@ -37,17 +48,17 @@ def read_server_version_name(server_ip: str):
 @app.get("/server/{server_ip}/version/protocol")
 def read_server_version_protocol(server_ip: str):
     version = mcs(server_ip).version
-    return {"version": version.protocol if version else None}
+    return {"protocol": version.protocol if version else None}
 
 @app.get("/server/{server_ip}/software/version")
 def read_server_software_version(server_ip: str):
     software = mcs(server_ip).software
-    return {"version": software.version if software else None}
+    return {"version_sw": software.version if software else None}
 
 @app.get("/server/{server_ip}/software/brand")
 def read_server_software_brand(server_ip: str):
     software = mcs(server_ip).software
-    return {"version": software.brand if software else None}
+    return {"brand_sw": software.brand if software else None}
 
 @app.get("/server/{server_ip}/software/plugins")
 def read_server_software_plugins(server_ip: str):
@@ -62,12 +73,12 @@ def read_server_icon(server_ip: str):
 @app.get("/server/{server_ip}/modt/minecraft")
 def read_server_modt_minecraft(server_ip: str):
     modt = mcs(server_ip).modt
-    return {"modt minecraft": [str(message) for message in modt] if modt else None}
+    return {"modt_minecraft": [str(message) for message in modt] if modt else None}
 
 @app.get("/server/{server_ip}/map/name")
 def read_server_map_name(server_ip: str):
     map = mcs(server_ip).map
-    return {"map name": map if map else None}
+    return {"map_name": map if map else None}
 
 @app.get("/server/{server_ip}/enforces_secure_chat")
 def read_server_enforces_secure_chat(server_ip: str):
@@ -79,6 +90,8 @@ def read_server_latency(server_ip: str):
     latency = mcs(server_ip).latency
     return {"latency": latency if latency else None}
 
-#@app.get("/server/{server_ip}/tracking-points")
-#def read_server_tracking_points(server_ip: str):
-#    return db.tracking_points.get(server_ip)
+@app.get("/server/{server_ip}/tracking/all")
+def read_server_tracking_data(server_ip: str):
+    data = db.tracking_points.get(server_ip)
+    db.servers.update_access(server_ip, int(time.time()))
+    return {"tracking_points": data if data else None}
