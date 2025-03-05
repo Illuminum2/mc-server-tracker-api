@@ -28,7 +28,7 @@ class Server:
 
     @property
     def software(self):
-        self.query()
+        self.update_query()
         if self.query is None:
             if self.status is not None:
                 #self.log.error("Server - software() - Server IP(" + str(self.ip) + "): Querying is not enabled on the server")
@@ -53,7 +53,7 @@ class Server:
 
     @property
     def map(self):
-        self.query()
+        self.update_query()
         if self.query is None:
             if self.status is not None:
                 #self.log.error("Server - map() - Server IP(" + str(self.ip) + "): Querying is not enabled on the server")
@@ -128,7 +128,7 @@ class Server:
 
         return True
 
-    def query(self):
+    def update_query(self):
         if self.status is None:
             self.update()
 
