@@ -85,6 +85,9 @@ class Server:
         tries = 1
         success = False
         while tries <= RETRY_COUNT and success is False:
+            if tries >= 2:
+                sleep(RETRY_DELAY)
+
             try:
                 self.server = JavaServer.lookup(self.ip, REQUEST_TIMEOUT)
                 self.timestamp = int(time())
@@ -95,8 +98,6 @@ class Server:
                 self.log.warning(f"Server - update() - Server IP({self.ip}) lookup connection refused, retry {tries} out of {RETRY_COUNT}")
             except Exception as e:
                 self.log.warning(f"Server - update() - Server IP({self.ip}) lookup failed: {str(e)}, retry {tries} out of {RETRY_COUNT}")
-
-            sleep(RETRY_DELAY)
             tries += 1
 
         if self.server is None:
@@ -106,6 +107,8 @@ class Server:
         tries = 1
         success = False
         while tries <= RETRY_COUNT and success is False:
+            if tries >= 2:
+                sleep(RETRY_DELAY)
             try:
                 self.status = self.server.status()
                 success = True
@@ -119,7 +122,6 @@ class Server:
                 self.log.warning(f"Server - update() - Server IP({self.ip}) status failed: {str(e)}, retry {tries} out of {RETRY_COUNT}")
                 self.status = None
 
-            sleep(RETRY_DELAY)
             tries += 1
 
         if self.server is None:
