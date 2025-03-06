@@ -49,7 +49,7 @@ class Server:
         if self.status is None:
             self.log.error(f"Server - modt() - Server IP({str(self.ip)}): No status data available")
             return None
-        return self.status.modt
+        return self.status.motd.to_minecraft()
 
     @property
     def map(self):
