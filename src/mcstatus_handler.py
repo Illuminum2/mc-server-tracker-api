@@ -15,14 +15,14 @@ class Server:
     @property
     def players(self):
         if self.status is None:
-            self.log.error("Server - players() - Server IP(" + str(self.ip) + "): No status data available")
+            self.log.error(f"Server - players() - Server IP({str(self.ip)}): No status data available")
             return None
         return self.status.players
 
     @property
     def version(self):
         if self.status is None:
-            self.log.error("Server - version() - Server IP(" + str(self.ip) + "): No status data available")
+            self.log.error(f"Server - version() - Server IP({str(self.ip)}): No status data available")
             return None
         return self.status.version
 
@@ -33,21 +33,21 @@ class Server:
             if self.status is not None:
                 #self.log.error("Server - software() - Server IP(" + str(self.ip) + "): Querying is not enabled on the server")
                 return None
-            self.log.error("Server - software() - Server IP(" + str(self.ip) + "): No query data available")
+            self.log.error(f"Server - software() - Server IP({str(self.ip)}): No query data available")
             return None
         return self.query.software()
 
     @property
     def icon(self):
         if self.status is None:
-            self.log.error("Server - icon() - Server IP(" + str(self.ip) + "): No status data available")
+            self.log.error(f"Server - icon() - Server IP({str(self.ip)}): No status data available")
             return None
         return self.status.icon
 
     @property
     def modt(self):
         if self.status is None:
-            self.log.error("Server - modt() - Server IP(" + str(self.ip) + "): No status data available")
+            self.log.error(f"Server - modt() - Server IP({str(self.ip)}): No status data available")
             return None
         return self.status.modt
 
@@ -58,21 +58,21 @@ class Server:
             if self.status is not None:
                 #self.log.error("Server - map() - Server IP(" + str(self.ip) + "): Querying is not enabled on the server")
                 return None
-            self.log.error("Server - map() - Server IP(" + str(self.ip) + "): No query data available")
+            self.log.error(f"Server - map() - Server IP({str(self.ip)}): No query data available")
             return None
         return self.query.map
 
     @property
     def enforce_secure_chat(self):
         if self.status is None:
-            self.log.error("Server - enforce_secure_chat() - Server IP(" + str(self.ip) + "): No status data available")
+            self.log.error(f"Server - enforce_secure_chat() - Server IP({str(self.ip)}): No status data available")
             return None
         return self.status.enforces_secure_chat
 
     @property
     def latency(self):
         if self.status is None:
-            self.log.error("Server - latency() - Server IP(" + str(self.ip) + "): No status data available")
+            self.log.error(f"Server - latency() - Server IP({str(self.ip)}): No status data available")
             return None
         return self.status.latency
 

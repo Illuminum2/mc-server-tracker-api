@@ -51,13 +51,13 @@ class DBServers:
     def get_ip(self, server_id):
         if self.exists_id(server_id):
             return self.cursor.execute("SELECT * FROM servers WHERE id = ?", [server_id]).fetchone()[1]
-        self.log.info("DBServers - get_ip() - Server ID(" + str(server_id) + ") not found")
+        self.log.info(f"DBServers - get_ip() - Server ID({str(server_id)}) not found")
         return None
 
     def get_id(self, server_ip):
         if self.exists_ip(server_ip):
             return self.get(server_ip)[0]
-        self.log.info("DBServers - get_id() - Server IP(" + str(server_ip) + ") not found")
+        self.log.info(f"DBServers - get_id() - Server IP({str(server_ip)}) not found")
         return None
 
     def add(self, server_ip, private, permanent):
@@ -66,13 +66,13 @@ class DBServers:
             self.cursor.execute("INSERT INTO servers (server_ip, priv, permanent, last_access, access_count) VALUES (?, ?, ?, ?, ?)", server)
             self.conn.commit()
         else:
-            self.log.info("DBServers - add() - Server IP(" + str(server_ip) + ") already exists")
+            self.log.info(f"DBServers - add() - Server IP({str(server_ip)}) already exists")
 
     def get(self, server_ip):
         if self.exists_ip(server_ip):
             server = self.cursor.execute("SELECT * FROM servers WHERE server_ip = ?", [server_ip]).fetchone()
             return server
-        self.log.info("DBServers - get() - Server IP(" + str(server_ip) + ") does not exist")
+        self.log.info(f"DBServers - get() - Server IP({str(server_ip)}) does not exist")
         return None
 
     @property
@@ -97,7 +97,7 @@ class DBServers:
             server = self.get(server_ip)
             priv, permanent = bool(server[2]), bool(server[3]) # Better readability
             return [priv, permanent]
-        self.log.info("DBServers - get_settings() - Server IP(" + str(server_ip) + ") does not exist")
+        self.log.info(f"DBServers - get_settings() - Server IP({str(server_ip)}) does not exist")
         return None
 
     def get_status(self, server_ip):
@@ -105,7 +105,7 @@ class DBServers:
             server = self.get(server_ip)
             last_update, last_access = server[4], server[5]
             return [last_update, last_access]
-        self.log.info("DBServers - get_status() - Server IP(" + str(server_ip) + ") does not exist")
+        self.log.info(f"DBServers - get_status() - Server IP({str(server_ip)}) does not exist")
         return None
 
     def get_access_count(self, server_ip):
@@ -113,7 +113,7 @@ class DBServers:
             server = self.get(server_ip)
             access_count = server[6]
             return access_count # No list just a var
-        self.log.info("DBServers - get_access_count() - Server IP(" + str(server_ip) + ") does not exist")
+        self.log.info(f"DBServers - get_access_count() - Server IP({str(server_ip)}) does not exist")
         return None
 
     def update_last_update(self, server_ip, timestamp):
@@ -121,7 +121,7 @@ class DBServers:
             self.cursor.execute("UPDATE servers SET last_update = ? WHERE server_ip = ?", [timestamp, server_ip])
             self.conn.commit()
             return
-        self.log.info("DBServers - update_last_update() - Server IP(" + str(server_ip) + ") does not exist")
+        self.log.info(f"DBServers - update_last_update() - Server IP({str(server_ip)}) does not exist")
 
     def update_access(self, server_ip, timestamp):
         if self.exists_ip(server_ip):
@@ -129,7 +129,7 @@ class DBServers:
             self.cursor.execute("UPDATE servers SET last_access = ? WHERE server_ip = ?", [timestamp, server_ip])
             self.conn.commit()
             return
-        self.log.info("DBServers - update_access() - Server IP(" + str(server_ip) + ") does not exist")
+        self.log.info(f"DBServers - update_access() - Server IP({str(server_ip)}) does not exist")
 
     def clean(self, retention_time):
         self.cursor.execute("DELETE FROM servers WHERE last_access < ? AND permanent = 0", [int(time()) - retention_time])
@@ -153,7 +153,7 @@ class DBTrackingPoints:
             self.cursor.execute("INSERT INTO tracking_points (server_id, timestamp, latency, players) VALUES (?, ?, ?, ?)", server)
             self.conn.commit()
         else:
-            self.log.info("DBTrackingPoints - add() - Server IP(" + str(server_ip) + ") does not exist")
+            self.log.info(f"DBTrackingPoints - add() - Server IP({str(server_ip)}) does not exist")
 
     def get(self, server_ip):
         if self.servers.exists_ip(server_ip):
@@ -165,7 +165,7 @@ class DBTrackingPoints:
                 results.append(tracking_point)
                 tracking_point = tracking_points.fetchone()
             return results
-        self.log.info("DBTrackingPoints - get() - Server IP(" + str(server_ip) + ") does not exist")
+        self.log.info(f"DBTrackingPoints - get() - Server IP({str(server_ip)}) does not exist")
         return None
 
     def count(self, server_ip):
@@ -173,7 +173,7 @@ class DBTrackingPoints:
             server_id = self.servers.get_id(server_ip)
             tracking_point_count = self.cursor.execute("SELECT count(server_id) FROM tracking_points WHERE server_id = ?", [server_id]).fetchone()[0]
             return tracking_point_count
-        self.log.info("DBTrackingPoints - count() - Server IP(" + str(server_ip) + ") does not exist")
+        self.log.info(f"DBTrackingPoints - count() - Server IP({str(server_ip)}) does not exist")
         return None
 
     def clean(self, retention_time):
@@ -186,7 +186,7 @@ class DBTrackingPoints:
                                 "(SELECT id FROM tracking_points WHERE server_id = ? ORDER BY timestamp LIMIT 1)", [self.servers.get_id(server_ip)]) # Using a subquery
             self.conn.commit()
         else:
-            self.log.info("DBTrackingPoints - delete_oldest() - Server IP(" + str(server_ip) + ") does not exist")
+            self.log.info(f"DBTrackingPoints - delete_oldest() - Server IP({str(server_ip)}) does not exist")
 
 class Singleton(type): # https://stackoverflow.com/questions/6760685/
     _instances = {}
