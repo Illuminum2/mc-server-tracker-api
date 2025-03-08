@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from scalar_fastapi import get_scalar_api_reference
 
@@ -21,15 +21,21 @@ async def scalar_html():
 
 @app.get("/server/list")
 def read_server_list():
-    db = DBHandler()
-    servers = db.servers.ips_public()
-    return {"servers": servers if servers else None}
+    try:
+        db = DBHandler()
+        servers = db.servers.ips_public()
+        return {"servers": servers if servers else None}
+    except:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/server/count")
 def read_server_count():
-    db = DBHandler()
-    count = db.servers.count_public
-    return {"servers": count if count else None}
+    try:
+        db = DBHandler()
+        count = db.servers.count_public
+        return {"servers": count if count else None}
+    except:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.get("/server/{server_ip}/players/online")
 def read_server_players_online(server_ip: str):
@@ -93,7 +99,10 @@ def read_server_latency(server_ip: str):
 
 @app.get("/server/{server_ip}/tracking/all")
 def read_server_tracking_data(server_ip: str):
-    db = DBHandler()
-    data = db.tracking_points.get(server_ip)
-    db.servers.update_access(server_ip, int(time.time()))
-    return {"tracking_points": data if data else None}
+    try:
+        db = DBHandler()
+        data = db.tracking_points.get(server_ip)
+        db.servers.update_access(server_ip, int(time.time()))
+        return {"tracking_points": data if data else None}
+    except:
+        raise HTTPException(status_code=500, detail="Internal server error")
