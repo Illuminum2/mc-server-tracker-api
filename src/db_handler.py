@@ -155,10 +155,10 @@ class DBTrackingPoints:
         else:
             self.log.info(f"DBTrackingPoints - add() - Server IP({str(server_ip)}) does not exist")
 
-    def get(self, server_ip):
+    def get_public(self, server_ip):
         if self.servers.exists_ip(server_ip):
             server_id = self.servers.get_id(server_ip)
-            tracking_points = self.cursor.execute("SELECT server_id, timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id])
+            tracking_points = self.cursor.execute("SELECT timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id])
             tracking_point = tracking_points.fetchone()
             results = []
             while tracking_point: # repeats until tracking_point is empty
