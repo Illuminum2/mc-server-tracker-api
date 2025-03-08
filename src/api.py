@@ -106,3 +106,7 @@ def read_server_tracking_data(server_ip: str):
         return {"tracking_points": data if data else None}
     except:
         raise HTTPException(status_code=500, detail="Internal server error")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8001)
