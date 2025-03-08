@@ -7,7 +7,6 @@ from mcstatus_handler import Server as mcs
 import time
 
 app = FastAPI()
-db = DBHandler()
 
 @app.get("/", include_in_schema=False)
 def read_root():
@@ -22,11 +21,13 @@ async def scalar_html():
 
 @app.get("/server/list")
 def read_server_list():
+    db = DBHandler()
     servers = db.servers.ips_public()
     return {"servers": servers if servers else None}
 
 @app.get("/server/count")
 def read_server_count():
+    db = DBHandler()
     count = db.servers.count_public
     return {"servers": count if count else None}
 
@@ -92,6 +93,7 @@ def read_server_latency(server_ip: str):
 
 @app.get("/server/{server_ip}/tracking/all")
 def read_server_tracking_data(server_ip: str):
+    db = DBHandler()
     data = db.tracking_points.get(server_ip)
     db.servers.update_access(server_ip, int(time.time()))
     return {"tracking_points": data if data else None}
