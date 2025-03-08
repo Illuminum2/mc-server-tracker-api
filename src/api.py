@@ -99,13 +99,13 @@ def read_server_latency(server_ip: str):
 
 @app.get("/server/{server_ip}/tracking/all")
 def read_server_tracking_data(server_ip: str):
-    try:
-        db = DBHandler()
+    db = DBHandler()
+    if db.servers.exists_ip(server_ip):
         data = db.tracking_points.get_public(server_ip)
         db.servers.update_access(server_ip, int(time.time()))
         return {"tracking_points": data if data else None}
-    except:
-        raise HTTPException(status_code=500, detail="Internal server error")
+    else:
+        raise HTTPException(status_code=404, detail="Server not found")
 
 if __name__ == "__main__":
     import uvicorn
