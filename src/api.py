@@ -7,7 +7,7 @@ from db_handler import DBHandler
 from mcstatus_handler import Server as mcs
 import time
 
-app = FastAPI()
+app = FastAPI(root_path="/mc/api/v1")
 
 class Server(BaseModel):
     ip: str
@@ -16,7 +16,7 @@ class Server(BaseModel):
 
 @app.get("/", include_in_schema=False)
 def read_root():
-    return RedirectResponse(url="/scalar")
+    return RedirectResponse(url=f"{app.root_path}/scalar")
 
 @app.get("/scalar", include_in_schema=False)
 async def scalar_html():
