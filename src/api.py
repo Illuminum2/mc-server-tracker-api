@@ -116,8 +116,8 @@ def read_server_tracking_data(server_ip: str):
 @app.post("/tracking/add")
 def add_server_tracking(server: Server):
     address = f"{server.ip}:{str(server.port)}"
-    mc_server = mcs(address)
-    if not mc_server is None:
+    status = mcs(address).status
+    if not status is None:
         db = DBHandler()
         if not db.servers.exists_ip(address):
             db.servers.add(address, server.private, 0)
