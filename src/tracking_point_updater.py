@@ -16,6 +16,7 @@ class TrackingPointUpdater():
         self._stop = False  # _ indicates variable is only to be used inside this class
 
         self.servers = []
+        self.current_index = 0
 
     def initializeList(self):
         db_index = 0
@@ -26,16 +27,39 @@ class TrackingPointUpdater():
             self.servers.append([])
 
         while db_index < db_len:
-            i = 0
-            while i < self.update_frequency and db_index < db_len:
+            self.current_index = 0
+            while self.current_index < self.update_frequency and db_index < db_len:
                 #print("Server IP: " + self.db.servers.get_ip(db_indices[db_index])) # Debug
                 server = Server(self.db.servers.get_ip(db_indices[db_index]))
                 tracking_point_count = self.db.tracking_points.count(server.ip)
-                self.servers[i].append([server, tracking_point_count])
-                i += 1
+                self.servers[self.current_index].append([server, tracking_point_count])
+                self.current_index += 1
                 db_index += 1
 
         self.log.info("TrackingPointsUpdater - initializeList() - List initialized")
+
+    async def add_server(self, ip):
+        server = Server(ip)
+        tracking_point_count = self.db.tracking_points.count(server.ip) # Could technically be skipped as it is going to be 0
+        self.servers[self.current_index].append([server, tracking_point_count])
+
+        self.current_index += 1
+        if self.current_index >= self.update_frequency:
+            self.current_index = 0
+
+
+    async def update_servers(self):
+        servers = self.db.servers.ips_all()
+
+        if not len(servers) == len(self.servers):
+            old_servers = []
+            for server_group in self.servers: # Get all current servers
+                for server in server_group:
+                    old_servers.append(server[0].ip)
+
+            for server in servers:
+                if server not in old_servers:
+                    await self.add_server(server)
 
     async def start(self):
         self._stop = False
@@ -52,9 +76,10 @@ class TrackingPointUpdater():
             for i in range(self.update_frequency): # Loops and increments i as long as i < self.update_frequency
                 updates.append(asyncio.create_task(self.update(self.servers[i])))
                 sleep_time = (round_start_time + i+1) - time() # Dynamic wait time
-                sleep(max(0, sleep_time))
+                await asyncio.sleep(max(0, sleep_time))
             await asyncio.gather(*updates) # * unrolls the list
             self.db.servers.clean(self.server_retention_time)
+            await self.update_servers()
 
     async def update(self, server_list):
         for server in server_list:

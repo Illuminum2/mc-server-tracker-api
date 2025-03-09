@@ -107,7 +107,7 @@ def read_server_latency(server_ip: str):
 def read_server_tracking_data(server_ip: str):
     db = DBHandler()
     if db.servers.exists_ip(server_ip):
-        data = db.tracking_points.get_public(server_ip)
+        data = db.tracking_points.get(server_ip)
         db.servers.update_access(server_ip, int(time.time()))
         return {"tracking_points": data if data else None}
     else:

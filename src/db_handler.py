@@ -89,6 +89,9 @@ class DBServers:
     def ids_public(self):
         return [int(tuple_id[0]) for tuple_id in self.cursor.execute("SELECT id FROM servers WHERE priv = 0").fetchall()]
 
+    def ips_all(self):
+        return [str(tuple_ip[0]) for tuple_ip in self.cursor.execute("SELECT server_ip FROM servers").fetchall()]
+
     def ips_public(self):
         return [str(tuple_ip[0]) for tuple_ip in self.cursor.execute("SELECT server_ip FROM servers WHERE priv = 0").fetchall()]
 
@@ -155,7 +158,7 @@ class DBTrackingPoints:
         else:
             self.log.info(f"DBTrackingPoints - add() - Server IP({str(server_ip)}) does not exist")
 
-    def get_public(self, server_ip):
+    def get(self, server_ip):
         if self.servers.exists_ip(server_ip):
             server_id = self.servers.get_id(server_ip)
             tracking_points = self.cursor.execute("SELECT timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id])
