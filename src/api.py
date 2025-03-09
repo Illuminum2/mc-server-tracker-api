@@ -1,12 +1,18 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from scalar_fastapi import get_scalar_api_reference
+from pydantic import BaseModel
 
 from db_handler import DBHandler
 from mcstatus_handler import Server as mcs
 import time
 
 app = FastAPI()
+
+class Server(BaseModel):
+    ip: str
+    port: int | None = 25565
+    private: bool | None = False
 
 @app.get("/", include_in_schema=False)
 def read_root():
@@ -97,7 +103,7 @@ def read_server_latency(server_ip: str):
     latency = mcs(server_ip).latency
     return {"latency": latency if latency else None}
 
-@app.get("/server/{server_ip}/tracking/all")
+@app.get("/tracking/{server_ip}/all")
 def read_server_tracking_data(server_ip: str):
     db = DBHandler()
     if db.servers.exists_ip(server_ip):
@@ -106,6 +112,21 @@ def read_server_tracking_data(server_ip: str):
         return {"tracking_points": data if data else None}
     else:
         raise HTTPException(status_code=404, detail="Server not found")
+
+@app.post("/tracking/add")
+def add_server_tracking(server: Server):
+    address = f"{server.ip}:{str(server.port)}"
+    mc_server = mcs(address)
+    if not mc_server is None:
+        db = DBHandler()
+        if not db.servers.exists_ip(address):
+            db.servers.add(address, server.private, 0)
+            return {"status": "success", "detail": "Server was added"}
+            #raise HTTPException(status_code=200, detail="Server was added")
+        else:
+            return {"status": "error", "detail": "Server already exists"}
+    else:
+        raise HTTPException(status_code=404, detail="No connection can be made to the server")
 
 if __name__ == "__main__":
     import uvicorn
