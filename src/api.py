@@ -124,7 +124,7 @@ def add_server_tracking(server: Server):
             return {"status": "success", "detail": "Server was added"}
             #raise HTTPException(status_code=200, detail="Server was added")
         else:
-            return {"status": "error", "detail": "Server already exists"}
+            raise HTTPException(status_code=403, detail="Server already exists") # Better status code would be
     else:
         raise HTTPException(status_code=404, detail="No connection can be made to the server")
 
