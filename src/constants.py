@@ -1,11 +1,14 @@
 import os
 
-
 UPDATE_FREQUENCY = 60*5 # 5 min
 TRACKING_RETENTION_TIME = 60*60*24 # 24h
 SERVER_RETENTION_TIME = 60*60*24*10 # 10 days
 
-DB_FOLDER = "../db/"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_FOLDER = os.path.dirname(SCRIPT_DIR)
+
+#PROJECT_FOLDER = os.getcwd() # Get absolute project directory
+DB_FOLDER = os.path.join(PROJECT_FOLDER, "db")
 DB_FILE_NAME = "mc_tracker.db"
 DB_PATH = os.path.join(DB_FOLDER, DB_FILE_NAME) # Uses correct path separator
 
