@@ -1,14 +1,14 @@
 import os
 
-HOST = "127.0.0.1"
-PORT = 8000
+HOST = os.environ.get("HOST", "127.0.0.1")
+PORT = int(os.environ.get("PORT", 8000))
 
 UPDATE_FREQUENCY = 60*1 # 1 min
 TRACKING_RETENTION_TIME = 60*60*24 # 24h
 SERVER_RETENTION_TIME = 60*60*24*10 # 10 days
 
 PROJECT_FOLDER = os.getcwd() # Get absolute project directory
-DB_FOLDER = os.path.join(PROJECT_FOLDER, "db")
+DB_FOLDER = os.environ.get("DB_FOLDER", os.path.join(PROJECT_FOLDER, "db"))
 DB_FILE_NAME = "mc_tracker.db"
 DB_PATH = os.path.join(DB_FOLDER, DB_FILE_NAME) # Uses correct path separator
 
