@@ -105,10 +105,15 @@ def read_server_latency(server_ip: str):
 
 @app.get("/tracking/{server_ip}/all")
 def read_server_tracking_data(server_ip: str):
+    if ":" not in server_ip:
+        full_address = f"{server_ip}:{25565}"
+    else:
+        full_address = server_ip
+
     db = DBHandler()
-    if db.servers.exists_ip(server_ip):
-        data = db.tracking_points.get(server_ip)
-        db.servers.update_access(server_ip, int(time.time()))
+    if db.servers.exists_ip(full_address):
+        data = db.tracking_points.get(full_address)
+        db.servers.update_access(full_address, int(time.time()))
         return {"tracking_points": data if data else None}
     else:
         raise HTTPException(status_code=404, detail="Server not found")
@@ -127,7 +132,3 @@ def add_server_tracking(server: Server):
             raise HTTPException(status_code=403, detail="Server already exists") # Better status code would be
     else:
         raise HTTPException(status_code=404, detail="No connection can be made to the server")
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)

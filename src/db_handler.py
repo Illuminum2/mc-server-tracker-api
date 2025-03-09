@@ -198,7 +198,7 @@ class Singleton(type): # https://stackoverflow.com/questions/6760685/
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
-class DBHandler(metaclass=Singleton):
+class DBHandler: # metaclass=Singleton removed for now
     def __init__(self):
         self.conn = DBConnection().connection
         self.cursor = self.conn.cursor()
