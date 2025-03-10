@@ -12,8 +12,8 @@ A FastAPI application that tracks Minecraft servers and provides an API to acces
 ## API Endpoints
 
 ### Server Listing
-- `GET /mc/api/v1/server/list` - List all public server IPs
-- `GET /mc/api/v1/server/count` - Get total number of public servers
+- `GET /mc/api/v1/server/list` - List all public server IPs that are being tracked
+- `GET /mc/api/v1/server/count` - Get total number of public servers that are being tracked
 
 ### Server Info
 - `GET /mc/api/v1/server/{server_ip}/players/online` - Get current player count
@@ -27,7 +27,7 @@ A FastAPI application that tracks Minecraft servers and provides an API to acces
 - `GET /mc/api/v1/server/{server_ip}/icon` - Get server icon
 
 ### Tracking
-- `GET /mc/api/v1/tracking/{server_ip}/all` - Get historical tracking data
+- `GET /mc/api/v1/tracking/{server_ip}/all` - Get historical player count and latency data
 - `POST /mc/api/v1/tracking/add` - Add a server to track
   ```json
   {
