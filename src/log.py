@@ -14,7 +14,7 @@ class Logger(metaclass=Singleton):
     def __init__(self):
         if not os.path.exists(LOG_FOLDER):
             os.makedirs(LOG_FOLDER)
-        self.log_path = LOG_FOLDER + str(int(time())) + LOG_FILE_EXTENSION
+        self.log_path = os.path.join(LOG_FOLDER, str(int(time())) + LOG_FILE_EXTENSION)
         logging.basicConfig(filename=self.log_path, level=logging.INFO)
         self.log = logging.getLogger()
 
