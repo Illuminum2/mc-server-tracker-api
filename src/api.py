@@ -9,7 +9,7 @@ from src.db_handler import DBHandler
 from src.mcstatus_handler import (Server as mcs)
 from src.constants import API_ROOT_PATH, MC_PORT
 
-app = FastAPI(root_path=API_ROOT_PATH)
+app = FastAPI(root_path=API_ROOT_PATH, docs_url=None, redoc_url=None)
 
 class Server(BaseModel):
     ip: str
@@ -18,17 +18,21 @@ class Server(BaseModel):
 
 @app.get("/", include_in_schema=False)
 async def read_root():
-    return RedirectResponse(url=f"{app.root_path}/scalar")
+    return RedirectResponse(url=f"{app.root_path}/docs")
+
+@app.get("/scalar", include_in_schema=False)
+async def read_root():
+    return RedirectResponse(url=f"{app.root_path}/docs")
 
 @app.get("/v1/", include_in_schema=False)
 async def read_v1_root():
-    return RedirectResponse(url=f"{app.root_path}/scalar")
+    return RedirectResponse(url=f"{app.root_path}/docs")
 
 @app.get("/v1/scalar", include_in_schema=False)
 async def v1_scalar_redirect():
-    return RedirectResponse(url=f"{app.root_path}/scalar")
+    return RedirectResponse(url=f"{app.root_path}/docs")
 
-@app.get("/v1/scalar", include_in_schema=False)
+@app.get("/docs", include_in_schema=False)
 async def scalar_html():
     return get_scalar_api_reference(
         openapi_url=app.openapi_url,
