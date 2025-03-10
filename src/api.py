@@ -3,10 +3,11 @@ from fastapi.responses import RedirectResponse
 from scalar_fastapi import get_scalar_api_reference
 from pydantic import BaseModel
 
-from db_handler import DBHandler
-from mcstatus_handler import (Server as mcs)
-from constants import API_ROOT_PATH, MC_PORT
 import time
+
+from src.db_handler import DBHandler
+from src.mcstatus_handler import (Server as mcs)
+from src.constants import API_ROOT_PATH, MC_PORT
 
 app = FastAPI(root_path=API_ROOT_PATH)
 

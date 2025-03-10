@@ -1,7 +1,9 @@
-from time import time, sleep
 from mcstatus import JavaServer
-from constants import RETRY_COUNT, RETRY_DELAY, REQUEST_TIMEOUT
-from log import Logger as Log
+
+from time import time, sleep
+
+from src.constants import RETRY_COUNT, RETRY_DELAY, REQUEST_TIMEOUT
+from src.log import Logger as Log
 
 
 class Server:

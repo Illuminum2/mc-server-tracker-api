@@ -1,8 +1,9 @@
-from db_handler import DBHandler
-from mcstatus_handler import Server
-from time import time, sleep
-from log import Logger as Log
 import asyncio
+from time import time
+
+from src.db_handler import DBHandler
+from src.mcstatus_handler import Server
+from src.log import Logger as Log
 
 class TrackingPointUpdater():
     def __init__(self, update_frequency, tracking_retention_time, server_retention_time):

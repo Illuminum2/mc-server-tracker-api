@@ -1,8 +1,10 @@
 import sqlite3
+
 import os
 from time import time
-from log import Logger as Log
-from constants import DB_FOLDER, DB_PATH
+
+from src.constants import DB_FOLDER, DB_PATH
+from src.log import Logger as Log
 
 class DBConnection:
     def __init__(self):

@@ -1,7 +1,9 @@
-import os
 import logging
+
+import os
 from time import time
-from constants import LOG_FOLDER, LOG_FILE_EXTENSION
+
+from src.constants import LOG_FOLDER, LOG_FILE_EXTENSION
 
 class Singleton(type): # https://stackoverflow.com/questions/6760685/
     _instances = {}
