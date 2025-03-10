@@ -7,7 +7,7 @@ UPDATE_FREQUENCY = 60*1 # 1 min
 TRACKING_RETENTION_TIME = 60*60*24 # 24h
 SERVER_RETENTION_TIME = 60*60*24*10 # 10 days
 
-PROJECT_FOLDER = "../"
+PROJECT_FOLDER = os.path.abspath("../")
 
 DB_FOLDER = os.path.join(PROJECT_FOLDER, "db")
 DB_FILE_NAME = "mc_tracker.db"
