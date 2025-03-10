@@ -3,6 +3,9 @@ import os
 HOST = os.environ.get("HOST", "127.0.0.1")
 PORT = int(os.environ.get("PORT", 8000))
 
+API_ROOT_PATH = "/api"
+MC_PORT = 25565
+
 UPDATE_FREQUENCY = 60*1 # 1 min
 TRACKING_RETENTION_TIME = 60*60*24 # 24h
 SERVER_RETENTION_TIME = 60*60*24*10 # 10 days

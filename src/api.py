@@ -5,13 +5,14 @@ from pydantic import BaseModel
 
 from db_handler import DBHandler
 from mcstatus_handler import (Server as mcs)
+from constants import API_ROOT_PATH, MC_PORT
 import time
 
-app = FastAPI(root_path="/api")
+app = FastAPI(root_path=API_ROOT_PATH)
 
 class Server(BaseModel):
     ip: str
-    port: int | None = 25565
+    port: int | None = MC_PORT
     private: bool | None = False
 
 @app.get("/", include_in_schema=False)
@@ -106,7 +107,7 @@ def read_server_latency(server_ip: str):
 @app.get("/v1/tracking/{server_ip}/all")
 def read_server_tracking_data(server_ip: str):
     if ":" not in server_ip:
-        full_address = f"{server_ip}:{25565}"
+        full_address = f"{server_ip}:{MC_PORT}"
     else:
         full_address = server_ip
 

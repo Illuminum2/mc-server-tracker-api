@@ -1,7 +1,8 @@
 import asyncio
 import uvicorn
+
 from tracking_point_updater import TrackingPointUpdater
-from constants import HOST, PORT, UPDATE_FREQUENCY, TRACKING_RETENTION_TIME, SERVER_RETENTION_TIME
+from constants import HOST, PORT, UPDATE_FREQUENCY, TRACKING_RETENTION_TIME, SERVER_RETENTION_TIME, MC_PORT
 from api import app
 from log import Logger as Log
 from db_handler import DBHandler
@@ -11,8 +12,9 @@ async def main():
     log.info("main() - MC Tracking API started")
 
     db = DBHandler()
-    if not db.servers.exists_ip("mc.hypixel.net:25565"):
-        db.servers.add("mc.hypixel.net:25565", 0, 1)  # A permanent example
+    example_ip = f"mc.hypixel.net:{MC_PORT}"
+    if not db.servers.exists_ip(example_ip):
+        db.servers.add(example_ip, 0, 1)  # A permanent example
 
     restart = True
 
