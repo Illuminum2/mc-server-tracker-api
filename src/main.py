@@ -18,7 +18,7 @@ async def main():
 
     db = DBHandler()
     if not db.servers.exists_ip("mc.hypixel.net:25565"):
-        db.servers.add("mc.hypixel.net", 0, 1)  # A permanent example
+        db.servers.add("mc.hypixel.net:25565", 0, 1)  # A permanent example
 
     updater = TrackingPointUpdater(UPDATE_FREQUENCY, TRACKING_RETENTION_TIME, SERVER_RETENTION_TIME)
 
