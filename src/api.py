@@ -4,10 +4,10 @@ from scalar_fastapi import get_scalar_api_reference
 from pydantic import BaseModel
 
 from db_handler import DBHandler
-from mcstatus_handler import Server as mcs
+from mcstatus_handler import (Server as mcs)
 import time
 
-app = FastAPI(root_path="/mc/api/v1")
+app = FastAPI(root_path="/api")
 
 class Server(BaseModel):
     ip: str
@@ -18,14 +18,14 @@ class Server(BaseModel):
 def read_root():
     return RedirectResponse(url=f"{app.root_path}/scalar")
 
-@app.get("/scalar", include_in_schema=False)
+@app.get("/v1/scalar", include_in_schema=False)
 async def scalar_html():
     return get_scalar_api_reference(
         openapi_url=app.openapi_url,
         title=app.title,
     )
 
-@app.get("/server/list")
+@app.get("/v1/server/list")
 def read_server_list():
     try:
         db = DBHandler()
@@ -34,7 +34,7 @@ def read_server_list():
     except:
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@app.get("/server/count")
+@app.get("/v1/server/count")
 def read_server_count():
     try:
         db = DBHandler()
@@ -43,67 +43,67 @@ def read_server_count():
     except:
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@app.get("/server/{server_ip}/players/online")
+@app.get("/v1/server/{server_ip}/players/online")
 def read_server_players_online(server_ip: str):
     players = mcs(server_ip).players
     return {"online": players.online if players else None}
 
-@app.get("/server/{server_ip}/players/max")
+@app.get("/v1/server/{server_ip}/players/max")
 def read_server_players_max(server_ip: str):
     players = mcs(server_ip).players
     return {"max": players.max if players else None}
 
-@app.get("/server/{server_ip}/version/name")
+@app.get("/v1/server/{server_ip}/version/name")
 def read_server_version_name(server_ip: str):
     version = mcs(server_ip).version
     return {"version": version.name if version else None}
 
-@app.get("/server/{server_ip}/version/protocol")
+@app.get("/v1/server/{server_ip}/version/protocol")
 def read_server_version_protocol(server_ip: str):
     version = mcs(server_ip).version
     return {"protocol": version.protocol if version else None}
 
-@app.get("/server/{server_ip}/software/version")
+@app.get("/v1/server/{server_ip}/software/version")
 def read_server_software_version(server_ip: str):
     software = mcs(server_ip).software
     return {"version_sw": software.version if software else None}
 
-@app.get("/server/{server_ip}/software/brand")
+@app.get("/v1server/{server_ip}/software/brand")
 def read_server_software_brand(server_ip: str):
     software = mcs(server_ip).software
     return {"brand_sw": software.brand if software else None}
 
-@app.get("/server/{server_ip}/software/plugins")
+@app.get("/v1/server/{server_ip}/software/plugins")
 def read_server_software_plugins(server_ip: str):
     software = mcs(server_ip).software
     return {"plugins": [str(plugin) for plugin in software.plugins] if software else None}
 
-@app.get("/server/{server_ip}/icon")
+@app.get("/v1/server/{server_ip}/icon")
 def read_server_icon(server_ip: str):
     icon = mcs(server_ip).icon
     return {"icon": icon if icon else None}
 
-@app.get("/server/{server_ip}/modt/minecraft")
+@app.get("/v1/server/{server_ip}/modt/minecraft")
 def read_server_modt_minecraft(server_ip: str):
     modt = mcs(server_ip).modt
     return {"modt_minecraft": [str(message) for message in modt] if modt else None}
 
-@app.get("/server/{server_ip}/map/name")
+@app.get("/v1/server/{server_ip}/map/name")
 def read_server_map_name(server_ip: str):
     map = mcs(server_ip).map
     return {"map_name": map if map else None}
 
-@app.get("/server/{server_ip}/enforces_secure_chat")
+@app.get("/v1/server/{server_ip}/enforces_secure_chat")
 def read_server_enforces_secure_chat(server_ip: str):
     enforce_secure_chat = mcs(server_ip).enforce_secure_chat
     return {"enforces_secure_chat": enforce_secure_chat if enforce_secure_chat else None}
 
-@app.get("/server/{server_ip}/latency")
+@app.get("/v1/server/{server_ip}/latency")
 def read_server_latency(server_ip: str):
     latency = mcs(server_ip).latency
     return {"latency": latency if latency else None}
 
-@app.get("/tracking/{server_ip}/all")
+@app.get("/v1/tracking/{server_ip}/all")
 def read_server_tracking_data(server_ip: str):
     if ":" not in server_ip:
         full_address = f"{server_ip}:{25565}"
@@ -118,7 +118,7 @@ def read_server_tracking_data(server_ip: str):
     else:
         raise HTTPException(status_code=404, detail="Server not found")
 
-@app.post("/tracking/add")
+@app.post("/v1/tracking/add")
 def add_server_tracking(server: Server):
     address = f"{server.ip}:{str(server.port)}"
     status = mcs(address).status
