@@ -51,7 +51,7 @@ async def read_root():
     return RedirectResponse(url=f"{app.root_path}/docs")
 
 @app.get("/scalar", include_in_schema=False)
-async def read_root():
+async def read_scalar():
     return RedirectResponse(url=f"{app.root_path}/docs")
 
 @app.get("/v1/", include_in_schema=False)
