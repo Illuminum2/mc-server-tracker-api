@@ -147,16 +147,13 @@ class DBTrackingPoints:
         self.cursor = cursor
 
     def add(self, tracking_point):
-        server_id = tracking_point[0]
-        timestamp = tracking_point[1]
-        latency = tracking_point[2]
-        players = tracking_point[3]
+        server_id, timestamp, latency, players = tracking_point
         server = [server_id, timestamp, latency, players]
         self.cursor.execute("INSERT INTO tracking_points (server_id, timestamp, latency, players) VALUES (?, ?, ?, ?)", server)
         self.conn.commit()
 
     def get(self, server_id):
-        tracking_points = self.cursor.execute("SELECT timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id])
+        tracking_points = self.cursor.execute("SELECT timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id]).fetchone()
         tracking_point = tracking_points.fetchone()
         results = []
         while tracking_point: # repeats until tracking_point is empty
