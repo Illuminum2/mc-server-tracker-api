@@ -32,7 +32,7 @@ class TrackingPointUpdater():
             while self.current_index < self.update_frequency and db_index < db_len:
                 #print("Server IP: " + self.db.servers.get_ip(db_indices[db_index])) # Debug
                 server = Server(self.db.servers.get_ip(db_indices[db_index]))
-                tracking_point_count = self.db.tracking_points.count(server.ip)
+                tracking_point_count = self.db.count_tracking_points(server.ip)
                 self.servers[self.current_index].append([server, tracking_point_count])
                 self.current_index += 1
                 db_index += 1
@@ -41,7 +41,7 @@ class TrackingPointUpdater():
 
     async def add_server(self, ip):
         server = Server(ip)
-        tracking_point_count = self.db.tracking_points.count(server.ip) # Could technically be skipped as it is going to be 0
+        tracking_point_count = self.db.count_tracking_points(server.ip) # Could technically be skipped as it is going to be 0
         self.servers[self.current_index].append([server, tracking_point_count])
 
         self.current_index += 1
@@ -86,12 +86,12 @@ class TrackingPointUpdater():
         for server in server_list:
             tracking_point = server[0].tracking_point()
             if tracking_point:
-                self.db.tracking_points.add(tracking_point)
+                self.db.add_tracking_point(tracking_point)
                 self.db.servers.update_last_update(tracking_point[0], tracking_point[1])
                 server[1] += 1
 
             if server[1] > int(self.tracking_retention_time / self.update_frequency):
-                self.db.tracking_points.delete_oldest(server[0].ip)
+                self.db.delete_oldest_tracking_point(server[0].ip)
                 server[1] -= 1
 
     def stop(self):

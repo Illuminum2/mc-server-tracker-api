@@ -37,12 +37,11 @@ class DBConnection:
         self.connection.commit()
 
 class DBServers:
-    def __init__(self, connection, cursor, tracking_points):
+    def __init__(self, connection, cursor):
         self.log = Log()
 
         self.conn = connection
         self.cursor = cursor
-        self.tracking_points = tracking_points
 
     def exists_ip(self, server_ip):
         return bool(self.cursor.execute("SELECT * FROM servers WHERE server_ip = ?", [server_ip]).fetchall()) # If list is empty bool() returns False
@@ -141,57 +140,42 @@ class DBServers:
         self.conn.commit()
 
 class DBTrackingPoints:
-    def __init__(self, connection, cursor, servers):
+    def __init__(self, connection, cursor):
         self.log = Log()
 
         self.conn = connection
         self.cursor = cursor
-        self.servers = servers
 
     def add(self, tracking_point):
-        server_ip = tracking_point[0]
-        if self.servers.exists_ip(server_ip):
-            timestamp = tracking_point[1]
-            latency = tracking_point[2]
-            players = tracking_point[3]
-            server = [self.servers.get_id(server_ip), timestamp, latency, players]
-            self.cursor.execute("INSERT INTO tracking_points (server_id, timestamp, latency, players) VALUES (?, ?, ?, ?)", server)
-            self.conn.commit()
-        else:
-            self.log.info(f"DBTrackingPoints - add() - Server IP({str(server_ip)}) does not exist")
+        server_id = tracking_point[0]
+        timestamp = tracking_point[1]
+        latency = tracking_point[2]
+        players = tracking_point[3]
+        server = [server_id, timestamp, latency, players]
+        self.cursor.execute("INSERT INTO tracking_points (server_id, timestamp, latency, players) VALUES (?, ?, ?, ?)", server)
+        self.conn.commit()
 
-    def get(self, server_ip):
-        if self.servers.exists_ip(server_ip):
-            server_id = self.servers.get_id(server_ip)
-            tracking_points = self.cursor.execute("SELECT timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id])
+    def get(self, server_id):
+        tracking_points = self.cursor.execute("SELECT timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id])
+        tracking_point = tracking_points.fetchone()
+        results = []
+        while tracking_point: # repeats until tracking_point is empty
+            results.append(tracking_point)
             tracking_point = tracking_points.fetchone()
-            results = []
-            while tracking_point: # repeats until tracking_point is empty
-                results.append(tracking_point)
-                tracking_point = tracking_points.fetchone()
-            return results
-        self.log.info(f"DBTrackingPoints - get() - Server IP({str(server_ip)}) does not exist")
-        return None
+        return results
 
-    def count(self, server_ip):
-        if self.servers.exists_ip(server_ip):
-            server_id = self.servers.get_id(server_ip)
-            tracking_point_count = self.cursor.execute("SELECT count(server_id) FROM tracking_points WHERE server_id = ?", [server_id]).fetchone()[0]
-            return tracking_point_count
-        self.log.info(f"DBTrackingPoints - count() - Server IP({str(server_ip)}) does not exist")
-        return None
+    def count(self, server_id):
+        tracking_point_count = self.cursor.execute("SELECT count(server_id) FROM tracking_points WHERE server_id = ?", [server_id]).fetchone()[0]
+        return tracking_point_count
 
     def clean(self, retention_time):
         self.cursor.execute("DELETE FROM tracking_points WHERE timestamp < ?", [int(time()) - retention_time])
         self.conn.commit()
 
-    def delete_oldest(self, server_ip):
-        if self.servers.exists_ip(server_ip):
-            self.cursor.execute("DELETE FROM tracking_points WHERE id ="
-                                "(SELECT id FROM tracking_points WHERE server_id = ? ORDER BY timestamp LIMIT 1)", [self.servers.get_id(server_ip)]) # Using a subquery
-            self.conn.commit()
-        else:
-            self.log.info(f"DBTrackingPoints - delete_oldest() - Server IP({str(server_ip)}) does not exist")
+    def delete_oldest(self, server_id):
+        self.cursor.execute("DELETE FROM tracking_points WHERE id ="
+                            "(SELECT id FROM tracking_points WHERE server_id = ? ORDER BY timestamp LIMIT 1)", [server_id]) # Using a subquery
+        self.conn.commit()
 
 class Singleton(type): # https://stackoverflow.com/questions/6760685/
     _instances = {}
@@ -204,9 +188,36 @@ class DBHandler: # metaclass=Singleton removed for now
     def __init__(self):
         self.conn = DBConnection().connection
         self.cursor = self.conn.cursor()
-        self.servers = DBServers(self.conn, self.cursor, None)
-        self.tracking_points = DBTrackingPoints(self.conn, self.cursor, self.servers)
-        self.servers.tracking_points = self.tracking_points
+        self.servers = DBServers(self.conn, self.cursor)
+        self.tracking_points = DBTrackingPoints(self.conn, self.cursor)
         
         self.log = Log()
         self.log.info("DBHandler - init() - Connected DBServers and DBTrackingPoints with database")
+
+    def add_tracking_point(self, tracking_point):
+        server_ip = tracking_point[0]
+        if self.servers.exists_ip(server_ip):
+            tracking_point[0] = self.servers.get_id(server_ip)
+            self.tracking_points.add(tracking_point)
+        else:
+            self.log.info(f"DBHandler - add_tracking_point() - Server IP({str(server_ip)}) does not exist")
+
+    def get_tracking_points(self, server_ip):
+        if self.servers.exists_ip(server_ip):
+            server_id = self.servers.get_id(server_ip)
+            return self.tracking_points.get(server_id)
+        self.log.info(f"DBHandler - get_tracking_points() - Server IP({str(server_ip)}) does not exist")
+        return None
+
+    def count_tracking_points(self, server_ip):
+        if self.servers.exists_ip(server_ip):
+            server_id = self.servers.get_id(server_ip)
+            return self.tracking_points.count(server_id)
+        self.log.info(f"DBHandler - count_tracking_points() - Server IP({str(server_ip)}) does not exist")
+        return None
+
+    def delete_oldest_tracking_point(self, server_ip):
+        if self.servers.exists_ip(server_ip):
+            self.tracking_points.delete_oldest(self.servers.get_id(server_ip))
+        else:
+            self.log.info(f"DBHandler - delete_oldest_tracking_point() - Server IP({str(server_ip)}) does not exist")

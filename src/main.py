@@ -23,7 +23,7 @@ async def main():
             await start()
         #except KeyboardInterrupt: # When stop is pressed
         #    log.info("main() - Shutdown started")
-        #    updater.stop()
+        #    updater.stop() # Doesn't do anything
         #    restart = False
         except Exception as e:
             log.error(f"main() - Error: {str(e)}")

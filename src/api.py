@@ -96,7 +96,7 @@ async def read_server_tracking_data(server_ip: str):
 
     db = DBHandler()
     if db.servers.exists_ip(full_address):
-        data = db.tracking_points.get(full_address)
+        data = db.get_tracking_points(full_address)
         db.servers.update_access(full_address, int(time.time()))
         return {"tracking_points": data if data else None}
     else:
