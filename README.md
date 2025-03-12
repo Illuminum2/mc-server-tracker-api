@@ -38,4 +38,4 @@ A FastAPI application that tracks Minecraft servers and provides an API to acces
   ```
 
 ## API Documentation
-Access Scalar API documentation at the `/mc/api/v1/scalar` after deployment.
+Access Scalar API documentation at the `/mc/api/docs` after deployment.
