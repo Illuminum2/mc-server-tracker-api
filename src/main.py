@@ -19,26 +19,27 @@ async def main():
     restart = True
 
     while restart is True:
+        config = uvicorn.Config(app=app, host=HOST, port=PORT, log_level="info")
+        server = uvicorn.Server(config)
         try:
-            await start()
+            await start(server)
         #except KeyboardInterrupt: # When stop is pressed
         #    log.info("main() - Shutdown started")
         #    updater.stop() # Doesn't do anything
         #    restart = False
         except Exception as e:
+            server.force_exit()
             log.error(f"main() - Error: {str(e)}")
             log.info(f"main() - Restart in progress")
 
     log.info("main() - Shutdown complete")
 
-async def start():
+async def start(server):
     updater = TrackingPointUpdater(UPDATE_FREQUENCY, TRACKING_RETENTION_TIME, SERVER_RETENTION_TIME)
-    await asyncio.gather(updater.start(), start_api())
+    await asyncio.gather(updater.start(), start_api(server))
 
-async def start_api():
+async def start_api(server):
     #uvicorn.run(app, host=HOST, port=PORT) # Not used because it is blocking
-    config = uvicorn.Config(app=app, host=HOST, port=PORT, log_level="info")
-    server = uvicorn.Server(config)
     await server.serve()
 
 if __name__ == "__main__":
