@@ -126,7 +126,7 @@ class Server:
 
             tries += 1
 
-        if self.server is None:
+        if self.status is None:
             self.log.error(f"Server - update() - Server IP({self.ip}) status could not be retrieved")
             return False
 

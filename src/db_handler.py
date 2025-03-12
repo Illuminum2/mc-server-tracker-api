@@ -153,7 +153,7 @@ class DBTrackingPoints:
         self.conn.commit()
 
     def get(self, server_id):
-        tracking_points = self.cursor.execute("SELECT timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id]).fetchone()
+        tracking_points = self.cursor.execute("SELECT timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id])
         tracking_point = tracking_points.fetchone()
         results = []
         while tracking_point: # repeats until tracking_point is empty
@@ -194,8 +194,9 @@ class DBHandler: # metaclass=Singleton removed for now
     def add_tracking_point(self, tracking_point):
         server_ip = tracking_point[0]
         if self.servers.exists_ip(server_ip):
-            tracking_point[0] = self.servers.get_id(server_ip)
-            self.tracking_points.add(tracking_point)
+            new_tracking_point = list(tracking_point) # Did not create a new tuple so tracking points can be expanded in the future
+            new_tracking_point[0] = self.servers.get_id(server_ip)
+            self.tracking_points.add(new_tracking_point)
         else:
             self.log.info(f"DBHandler - add_tracking_point() - Server IP({str(server_ip)}) does not exist")
 
