@@ -51,10 +51,10 @@ class TrackingPointUpdater:
         tracking_point_count = self.db.count_tracking_points(server.ip) # Could technically be skipped as it is going to be 0
 
         if len(self.deleted_indices) is not 0:
-            index = self.deleted_indices.pop(0)
+            index = self.deleted_indices.pop()
         elif self.deleted > 0:
             await self.populate_deleted_indices()
-            index = self.deleted_indices.pop(0)
+            index = self.deleted_indices.pop()
         else:
             index = self.current_index
 
@@ -88,7 +88,7 @@ class TrackingPointUpdater:
                     if len(self.deleted_indices) < self.deleted_store_max:
                         self.deleted_indices.append(i)
                     else:
-                        self.deleted_indices.remove(0) # Or pop(-1)?
+                        self.deleted_indices.pop(0)
                         self.deleted_indices.append(i)
                     self.deleted += 1
 
