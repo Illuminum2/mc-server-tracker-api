@@ -18,10 +18,12 @@ class TrackingPointUpdater:
 
         self.servers = []
         self.current_index = 0
+        self.last_list_update = 0
 
     def initialize_list(self):
         db_index = 0
         db_indices = self.db.servers.ids_all()
+        self.last_list_update = int(time())
         db_len = len(db_indices)
 
         for i in range(self.update_frequency):
@@ -50,7 +52,8 @@ class TrackingPointUpdater:
 
 
     async def update_servers(self):
-        servers = self.db.servers.ips_all()
+        servers = self.db.servers.ips_all_new(self.last_list_update)
+        self.last_list_update = int(time())
 
         if not len(servers) == len(self.servers):
             old_servers = []
@@ -61,6 +64,14 @@ class TrackingPointUpdater:
             for server in servers:
                 if server not in old_servers:
                     await self.add_server(server)
+
+    async def clean(self):
+        deleted_servers = self.db.servers.clean(self.server_retention_time)
+
+        for server_group in self.servers:
+            for server in server_group:
+                if server[0].ip in deleted_servers:
+                    server_group.remove(server)
 
     async def start(self):
         self._stop = False
@@ -79,7 +90,7 @@ class TrackingPointUpdater:
                 sleep_time = (round_start_time + i+1) - time() # Dynamic wait time
                 await asyncio.sleep(max(0.0, sleep_time))
             await asyncio.gather(*updates) # * unrolls the list
-            self.db.servers.clean(self.server_retention_time)
+            await self.clean()
             await self.update_servers()
 
     async def update(self, server_list):

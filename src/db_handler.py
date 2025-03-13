@@ -96,6 +96,9 @@ class DBServers:
     def ips_public(self):
         return [str(tuple_ip[0]) for tuple_ip in self.cursor.execute("SELECT server_ip FROM servers WHERE priv = 0").fetchall()]
 
+    def ips_all_new(self, timestamp):
+        return [str(tuple_ip[0]) for tuple_ip in self.cursor.execute("SELECT server_ip FROM servers WHERE last_access >= ?", [timestamp]).fetchall()]
+
     def get_settings(self, server_ip):
         if self.exists_ip(server_ip):
             server = self.get(server_ip)
