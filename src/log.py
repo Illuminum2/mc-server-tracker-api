@@ -17,7 +17,7 @@ class Logger(metaclass=Singleton):
         if not os.path.exists(LOG_FOLDER):
             os.makedirs(LOG_FOLDER)
         self.log_path = os.path.join(LOG_FOLDER, str(int(time())) + LOG_FILE_EXTENSION)
-        logging.basicConfig(filename=self.log_path, level=logging.INFO)
+        logging.basicConfig(filename=str(self.log_path), level=logging.INFO)
         self.log = logging.getLogger()
 
     def info(self, message):

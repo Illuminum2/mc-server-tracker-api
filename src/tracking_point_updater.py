@@ -5,7 +5,7 @@ from src.db_handler import DBHandler
 from src.mcstatus_handler import Server
 from src.log import Logger as Log
 
-class TrackingPointUpdater():
+class TrackingPointUpdater:
     def __init__(self, update_frequency, tracking_retention_time, server_retention_time):
         self.log = Log()
 
@@ -19,7 +19,7 @@ class TrackingPointUpdater():
         self.servers = []
         self.current_index = 0
 
-    def initializeList(self):
+    def initialize_list(self):
         db_index = 0
         db_indices = self.db.servers.ids_all()
         db_len = len(db_indices)
@@ -66,7 +66,7 @@ class TrackingPointUpdater():
         self._stop = False
 
         self.db.tracking_points.clean(self.tracking_retention_time)
-        self.initializeList() # Must be called after cleaning as tracking_point_count can change
+        self.initialize_list() # Must be called after cleaning as tracking_point_count can change
 
         while not self._stop:
             self.log.info("TrackingPointsUpdater - start() - New round started")
@@ -77,7 +77,7 @@ class TrackingPointUpdater():
             for i in range(self.update_frequency): # Loops and increments i as long as i < self.update_frequency
                 updates.append(asyncio.create_task(self.update(self.servers[i])))
                 sleep_time = (round_start_time + i+1) - time() # Dynamic wait time
-                await asyncio.sleep(max(0, sleep_time))
+                await asyncio.sleep(max(0.0, sleep_time))
             await asyncio.gather(*updates) # * unrolls the list
             self.db.servers.clean(self.server_retention_time)
             await self.update_servers()
