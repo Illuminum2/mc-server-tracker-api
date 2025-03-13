@@ -4,7 +4,7 @@ import asyncio
 from src.db_handler import DBHandler
 from src.tracking_point_updater import TrackingPointUpdater
 from src.api import app
-from src.constants import HOST, PORT, UPDATE_FREQUENCY, TRACKING_RETENTION_TIME, SERVER_RETENTION_TIME, MC_PORT
+from src.constants import HOST, PORT, UPDATE_FREQUENCY, TRACKING_RETENTION_TIME, SERVER_RETENTION_TIME, DELETED_STORE_MAX, MC_PORT
 from src.log import Logger as Log
 
 async def main():
@@ -24,6 +24,7 @@ async def main():
         try:
             await start(server)
         #except KeyboardInterrupt: # When stop is pressed
+        #    print("Keyboard Interrupt")
         #    log.info("main() - Shutdown started")
         #    updater.stop() # Doesn't do anything
         #    restart = False
@@ -35,7 +36,7 @@ async def main():
     log.info("main() - Shutdown complete")
 
 async def start(server):
-    updater = TrackingPointUpdater(UPDATE_FREQUENCY, TRACKING_RETENTION_TIME, SERVER_RETENTION_TIME)
+    updater = TrackingPointUpdater(UPDATE_FREQUENCY, TRACKING_RETENTION_TIME, SERVER_RETENTION_TIME, DELETED_STORE_MAX)
     await asyncio.gather(updater.start(), start_api(server))
 
 async def start_api(server):
