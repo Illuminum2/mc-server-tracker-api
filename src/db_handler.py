@@ -136,8 +136,9 @@ class DBServers:
         self.log.info(f"DBServers - update_access() - Server IP({str(server_ip)}) does not exist")
 
     def clean(self, retention_time):
-        self.cursor.execute("DELETE FROM servers WHERE last_access < ? AND permanent = 0", [int(time()) - retention_time])
+        deleted_servers = self.cursor.execute("DELETE FROM servers WHERE last_access < ? AND permanent = 0 RETURNING (server_ip)", [int(time()) - retention_time]).fetchall()
         self.conn.commit()
+        return deleted_servers
 
 class DBTrackingPoints:
     def __init__(self, connection, cursor):
@@ -153,13 +154,7 @@ class DBTrackingPoints:
         self.conn.commit()
 
     def get(self, server_id):
-        tracking_points = self.cursor.execute("SELECT timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id])
-        tracking_point = tracking_points.fetchone()
-        results = []
-        while tracking_point: # repeats until tracking_point is empty
-            results.append(tracking_point)
-            tracking_point = tracking_points.fetchone()
-        return results
+        return self.cursor.execute("SELECT timestamp, latency, players FROM tracking_points WHERE server_id = ?", [server_id]).fetchall()
 
     def count(self, server_id):
         tracking_point_count = self.cursor.execute("SELECT count(server_id) FROM tracking_points WHERE server_id = ?", [server_id]).fetchone()[0]
